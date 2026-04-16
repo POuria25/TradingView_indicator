@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TradingView Indicator Cheatsheet</title>
+<meta name="description" content="120+ TradingView indicators explained with calculations, trading applications, and edge ratings. Searchable reference for technical analysis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #080a0f;
+  --bg-main: #0c0f16;
+  --bg-card: #111621;
+  --bg-hover: #161d2b;
+  --bg-code: #0a0d14;
+  --border: rgba(255,255,255,0.06);
+  --border-hover: rgba(255,255,255,0.12);
+  --text-primary: #e1e7ef;
+  --text-secondary: #8892a4;
+  --text-muted: #5a6478;
+  --accent-blue: #4a9eff;
+  --accent-green: #00e89d;
+  --accent-amber: #ffb547;
+  --accent-red: #ff5c72;
+  --accent-purple: #a78bfa;
+  --accent-cyan: #22d3ee;
+  --accent-pink: #f472b6;
+  --accent-orange: #fb923c;
+  --cat-trend: #4a9eff;
+  --cat-momentum: #ffb547;
+  --cat-volume: #00e89d;
+  --cat-volatility: #ff5c72;
+  --cat-sr: #a78bfa;
+  --cat-strength: #22d3ee;
+  --cat-breadth: #f472b6;
+  --cat-pattern: #fb923c;
+  --cat-onchain: #c084fc;
+  --font-display: 'Outfit', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Fira Code', monospace;
+  --radius: 8px;
+  --glow-blue: 0 0 20px rgba(74,158,255,0.15);
+  --glow-green: 0 0 20px rgba(0,232,157,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #1e2738 transparent;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #1e2738; border-radius: 3px; }
+
+body {
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══ NOISE TEXTURE OVERLAY ═══ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ═══ HEADER ═══ */
+.header {
+  padding: 48px 32px 32px;
+  background: linear-gradient(180deg, rgba(74,158,255,0.04) 0%, transparent 100%);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent-blue), transparent);
+}
+.header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header .sub {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+.header .sub span { color: var(--accent-green); }
+.header .credit {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 12px;
+  font-family: var(--font-mono);
+}
+.header .credit a {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+/* ═══ CONTROLS ═══ */
+.controls {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,10,15,0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 16px 32px;
+  border-bottom: 1px solid var(--border);
+}
+.search-wrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+.search-wrap::before {
+  content: '⌕';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 16px;
+}
+.search {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.search:focus {
+  border-color: var(--accent-blue);
+  box-shadow: var(--glow-blue);
+}
+.search::placeholder { color: var(--text-muted); }
+
+.pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.pill {
+  padding: 5px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  user-select: none;
+}
+.pill:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.pill.active {
+  border-color: var(--pill-color, var(--accent-blue));
+  background: rgba(74,158,255,0.1);
+  color: var(--pill-color, var(--accent-blue));
+}
+.pill-sort {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.pill-sort.active {
+  border-color: var(--accent-amber);
+  background: rgba(255,181,71,0.1);
+  color: var(--accent-amber);
+}
+.counter {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 8px;
+}
+
+/* ═══ CONTENT ═══ */
+.content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px 32px 120px;
+}
+
+.cat-section { margin-bottom: 32px; }
+.cat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.cat-icon { font-size: 18px; }
+.cat-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.cat-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: rgba(255,255,255,0.04);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* ═══ INDICATOR CARDS ═══ */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: var(--border-hover); }
+.card-head {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+  transition: background 0.15s;
+}
+.card-head:hover { background: var(--bg-hover); }
+.card-stripe {
+  width: 3px;
+  height: 20px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.card-name {
+  flex: 1;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.2px;
+}
+.card-stars {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+.star-filled { color: var(--accent-amber); }
+.star-empty { color: #2a3040; }
+.card-arrow {
+  color: var(--text-muted);
+  font-size: 14px;
+  transition: transform 0.25s;
+  flex-shrink: 0;
+}
+.card.open .card-arrow { transform: rotate(180deg); }
+
+.card-body {
+  display: none;
+  padding: 0 16px 16px;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+.card.open .card-body { display: block; }
+
+.field { margin-bottom: 12px; }
+.field-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+}
+.field-label.what { color: var(--accent-blue); }
+.field-label.why { color: var(--accent-amber); }
+.field-label.how { color: var(--accent-green); }
+.field p { margin: 0; color: var(--text-primary); }
+
+.calc-block {
+  padding: 8px 14px;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.tag {
+  padding: 3px 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ═══ BACK TO TOP ═══ */
+.btt {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 18px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  transition: all 0.2s;
+}
+.btt:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+.btt.show { display: flex; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 640px) {
+  .header { padding: 32px 16px 24px; }
+  .header h1 { font-size: 24px; }
+  .controls { padding: 12px 16px; }
+  .content { padding: 16px 16px 100px; }
+  .pill-sort { margin-left: 0; }
+}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card { animation: fadeIn 0.25s ease both; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>TradingView Indicator Cheatsheet</h1>
+  <div class="sub"><span>120+</span> indicators · categorized · with trading applications &amp; edge ratings</div>
+  <div class="credit">by <a href="https://github.com/POuria25" target="_blank">POuria25</a></div>
+</div>
+
+<div class="controls" id="controls">
+  <div class="search-wrap">
+    <input class="search" id="search" type="text" placeholder="Search indicators, signals, strategies…" autocomplete="off">
+  </div>
+  <div class="pills" id="pills">
+    <!-- Generated by JS -->
+  </div>
+</div>
+
+<div class="content" id="content">
+  <!-- Generated by JS -->
+</div>
+
+<button class="btt" id="btt" onclick="window.scrollTo({top:0})">↑</button>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════════
+const CATEGORIES = [
+  { id:"Trend", label:"Trend", icon:"📈", color:"var(--cat-trend)" },
+  { id:"Momentum", label:"Momentum", icon:"⚡", color:"var(--cat-momentum)" },
+  { id:"Volume", label:"Volume", icon:"📊", color:"var(--cat-volume)" },
+  { id:"Volatility", label:"Volatility", icon:"🌊", color:"var(--cat-volatility)" },
+  { id:"Support/Resistance", label:"S/R & Levels", icon:"🎯", color:"var(--cat-sr)" },
+  { id:"Trend Strength", label:"Trend Strength", icon:"💪", color:"var(--cat-strength)" },
+  { id:"Breadth", label:"Breadth", icon:"🔍", color:"var(--cat-breadth)" },
+  { id:"Pattern", label:"Pattern & Cycle", icon:"🔄", color:"var(--cat-pattern)" },
+  { id:"On-Chain", label:"On-Chain", icon:"⛓️", color:"var(--cat-onchain)" }
+];
+
+const I = [
+// ─── TREND ───
+{n:"Simple Moving Average (SMA)",c:"Trend",w:"Arithmetic mean of closing prices over N periods. Equal weight to every bar in the window.",f:"SMA = (P₁ + P₂ + … + Pₙ) / n",y:"Smooths noise, reveals underlying trend direction. The 50/100/200-day SMAs are institutional benchmarks — funds literally use \"price vs 200 SMA\" as a regime filter.",u:"Price above SMA = bullish bias; below = bearish. SMA slope matters more than crossover signals. Use 20 for swing, 50 for intermediate, 200 for macro trend. Golden cross (50 > 200) and death cross (50 < 200) are lagging but widely watched.",s:"All styles. Core indicator.",e:5,g:"Trend direction, dynamic support/resistance"},
+{n:"Moving Average Exponential (EMA)",c:"Trend",w:"Weighted MA giving exponentially more weight to recent prices. Reacts faster than SMA.",f:"EMA = Price × k + EMA(prev) × (1−k), where k = 2/(n+1)",y:"Faster reaction means earlier signals but more whipsaws. The 8/21 EMA pair is the default for most active traders.",u:"Same logic as SMA but preferred on lower timeframes (4h and below) where speed matters. 8 EMA > 21 EMA = short-term bullish. Price holding above 21 EMA on pullbacks = trend continuation. The 9 EMA is the default MACD fast line.",s:"Day trading, swing trading",e:5,g:"Fast trend detection, pullback entries"},
+{n:"Double EMA (DEMA)",c:"Trend",w:"Reduces lag of EMA by applying EMA twice and correcting. Formula: 2×EMA(n) − EMA(EMA(n)).",f:"DEMA = 2 × EMA(P, n) − EMA(EMA(P, n), n)",y:"Less lag than EMA, hugs price tighter. Useful when you need MA-based signals but can't afford the delay.",u:"Substitute for EMA in crossover systems. More sensitive = more whipsaws, so combine with a filter (ADX or volume confirmation).",s:"Short-term swing, scalping",e:3,g:"Reduced-lag trend following"},
+{n:"Triple EMA (TEMA)",c:"Trend",w:"Further lag reduction: 3×EMA − 3×EMA(EMA) + EMA(EMA(EMA)). Extremely responsive.",f:"TEMA = 3×EMA₁ − 3×EMA₂ + EMA₃",y:"Almost zero lag on smooth trends, but becomes noisy in chop. Best used as a signal line rather than standalone.",u:"Pair with a slower MA (SMA 50) — TEMA for entries, SMA for trend filter. When TEMA crosses SMA, it's an early signal of trend change.",s:"Day trading, momentum scalping",e:3,g:"Ultra-fast trend shifts"},
+{n:"Smoothed Moving Average (SMMA)",c:"Trend",w:"Modified EMA with a much longer effective lookback. Equivalent to EMA with period 2n−1.",f:"SMMA = (SMMA(prev) × (n−1) + Price) / n",y:"Extremely smooth — filters almost all noise. Used in the Williams Alligator and some institutional trend systems.",u:"Best as a long-term trend filter. If price is above SMMA(50), you're in a bull market period. Don't use for entries — too slow.",s:"Position trading, long-term trend identification",e:3,g:"Ultra-smooth trend direction"},
+{n:"Moving Average Weighted (WMA)",c:"Trend",w:"Linearly weighted: most recent bar gets weight N, second N−1, etc. More recent-biased than SMA but less than EMA.",f:"WMA = Σ(Pᵢ × wᵢ) / Σ(wᵢ), weights = n, n−1, …, 1",y:"Middle ground between SMA and EMA sensitivity. Some quant strategies prefer it because the weighting is transparent and linear.",u:"Drop-in replacement for SMA/EMA in any crossover system. Some traders prefer WMA for Bollinger Band calculations.",s:"Swing trading",e:3,g:"Balanced trend smoothing"},
+{n:"Arnaud Legoux Moving Average (ALMA)",c:"Trend",w:"Uses a Gaussian distribution as the weight function, centered at a user-defined offset. Eliminates noise while minimizing lag.",f:"Gaussian-weighted MA with offset (0–1) and sigma parameters",y:"The offset parameter lets you trade off lag vs smoothness explicitly. At offset=0.85 (default), it's nearly zero-lag on trends. One of the better modern MAs.",u:"Replace your default MA with ALMA for cleaner signals. Works particularly well on 1h–Daily charts. Trend direction + slope gives high-quality regime classification.",s:"Swing, position trading",e:4,g:"Low-lag trend following with noise reduction"},
+{n:"Hull Moving Average (HMA)",c:"Trend",w:"Uses WMA of WMA to eliminate lag, then applies a square-root-period WMA. Developed by Alan Hull.",f:"HMA = WMA(2×WMA(n/2) − WMA(n), √n)",y:"Near-zero lag and very smooth. The color change (slope change) is one of the cleanest trend-flip signals available from any MA.",u:"HMA color flip = trend change signal. Works best as a standalone on 4h+ charts. Don't use short periods (<20) — gets choppy. HMA(55) on daily is a popular swing setup.",s:"Swing trading, trend following",e:4,g:"Early trend reversal detection"},
+{n:"Kaufman's Adaptive Moving Average (KAMA)",c:"Trend",w:"Adapts its smoothing constant based on market \"efficiency\" — fast in trends, slow in chop. Created by Perry Kaufman.",f:"Uses efficiency ratio (direction/volatility) to scale between fast and slow EMA constants",y:"Self-adjusting: you don't need to optimize the period for different regimes. It does it automatically. Conceptual ancestor of most modern adaptive indicators.",u:"Trend direction + flat KAMA = range (don't trade). Sloping KAMA = trend (trade direction). Price crossing KAMA is a signal, but KAMA going flat is the more valuable info — it tells you to stop trading.",s:"All styles, especially systematic/algo",e:4,g:"Adaptive trend + range detection"},
+{n:"Least Squares Moving Average (LSMA)",c:"Trend",w:"Fits a linear regression line to the last N prices and uses the endpoint as the MA value. Also called Linear Regression Curve.",f:"Endpoint of least-squares regression line over n periods",y:"Minimizes lag mathematically — it projects where the trend is going, not where it's been. The slope is a direct measure of trend velocity.",u:"LSMA slope > 0 and price above LSMA = strong uptrend. Slope flattening = trend weakening. Very useful for measuring trend acceleration/deceleration.",s:"Quant, systematic trading",e:4,g:"Trend direction + velocity measurement"},
+{n:"McGinley Dynamic",c:"Trend",w:"Self-adjusting MA that speeds up in downtrends and slows in uptrends. Tracks market more closely than any fixed MA.",f:"MD = MD(prev) + (Price − MD(prev)) / (k × n × (Price/MD(prev))⁴)",y:"Automatically handles the asymmetry between rallies (slow) and selloffs (fast). The 4th power term gives it the adaptive behavior.",u:"Use as a trend filter that naturally tightens stops in selloffs. Price below McGinley = get defensive faster than a standard MA would signal.",s:"Risk management, trend following",e:3,g:"Asymmetric trend tracking"},
+{n:"Moving Average Ribbon",c:"Trend",w:"Multiple MAs (8–12) plotted simultaneously with incrementing periods, creating a ribbon visual.",f:"Set of EMAs/SMAs: e.g., 20, 25, 30, 35, 40, 45, 50",y:"Ribbon expansion = strong trend, compression = consolidation/reversal imminent. The visual gives you trend strength at a glance.",u:"Wide ribbon with ordered MAs (shortest on top in uptrend) = stay in trade. Ribbon twist (MAs crossing) = exit or reverse. Compression before expansion = the high-probability entry.",s:"Swing, position trading",e:4,g:"Trend strength + compression signals"},
+{n:"Ichimoku Cloud",c:"Trend",w:"Japanese system: Tenkan (9), Kijun (26), Senkou A/B (cloud), Chikou (26 back). Gives trend, momentum, S/R, and future zones in one system.",f:"Tenkan=(HH9+LL9)/2, Kijun=(HH26+LL26)/2, Senkou A=(T+K)/2 shifted 26, Senkou B=(HH52+LL52)/2 shifted 26",y:"The only indicator giving trend, momentum, support/resistance, and forward-looking S/R zones in one system. The cloud is literally forward-looking.",u:"Full bull: price > cloud, Tenkan > Kijun, Chikou > price 26 bars ago, cloud green, future cloud green. Each missing confirmation weakens signal. Cloud top/bottom = key S/R. Kijun flat = magnet.",s:"All styles. Particularly powerful on 4h and daily.",e:5,g:"Complete trend system: direction, momentum, S/R, forward projection"},
+{n:"Supertrend",c:"Trend",w:"ATR-based trailing stop that flips above/below price. Green = uptrend, red = downtrend.",f:"Upper = HL2 − (mult × ATR), Lower = HL2 + (mult × ATR). Flips when price crosses.",y:"Clean binary signal: long or short. No ambiguity. ATR-based = auto-adjusts to volatility.",u:"Default (10,3) works on most timeframes. Flip = trade signal. Use as trailing stop. Multiple Supertrends (fast + slow) give better signals.",s:"Trend following, systematic",e:4,g:"Binary trend direction + trailing stop"},
+{n:"Parabolic SAR",c:"Trend",w:"Dots above (downtrend) or below (uptrend) price. Dots accelerate toward price as trend ages.",f:"SAR = SAR(prev) + AF × (EP − SAR(prev)). AF starts 0.02, increments 0.02, max 0.20.",y:"The acceleration factor forces you to take profits before reversal. Good discipline tool.",u:"Dot flip = potential reversal. Works best in trending markets; gets destroyed in ranges. Combine with ADX > 25 filter.",s:"Trend following with trailing stops",e:3,g:"Trailing stop + trend reversal"},
+{n:"Williams Alligator",c:"Trend",w:"Three smoothed MAs (Jaw=13/8, Teeth=8/5, Lips=5/3) — sleeping/waking/feeding alligator.",f:"SMMA(13) offset 8, SMMA(8) offset 5, SMMA(5) offset 3",y:"Markets trend only 15–30% of the time. Tells you when to trade (spreading) and when to sit out (intertwined).",u:"Intertwined = no trade. Spreading in order = trade. Width = trend strength. Lips crossing Teeth = early exit signal.",s:"Trend following, patience-based",e:4,g:"Trend presence/absence + strength"},
+{n:"Linear Regression Channel",c:"Trend",w:"Fits linear regression to price, draws ±1σ and ±2σ channels.",f:"Best-fit line via least squares + σ-based channel boundaries",y:"Statistically grounded: 68% within ±1σ, 95% within ±2σ. Touches of ±2σ are significant.",u:"Mean revert from ±2σ toward regression line. Slope = trend direction. Channel widening = volatility increase. Breaking 2σ = breakout or exhaustion.",s:"Mean reversion, swing trading",e:4,g:"Statistical mean reversion zones"},
+{n:"MA Cross",c:"Trend",w:"Plots two MAs and highlights crossovers. Dedicated visualization for golden/death cross signals.",f:"Fast MA vs Slow MA crossover detection",y:"Crossover systems work in trends, fail in ranges. This automates detection.",u:"Fast crosses above slow = bullish. Add ADX > 20 filter. Common pairs: 9/21, 20/50, 50/200.",s:"Systematic, swing trading",e:3,g:"MA crossover alerts"},
+{n:"Auto Trendlines",c:"Trend",w:"Algorithmically draws trendlines connecting swing highs and lows.",f:"Swing point detection + line fitting",y:"Saves manual drawing time. Algo-drawn lines don't always match experienced traders' drawings.",u:"Use as starting point, adjust manually. More touches = more significant break.",s:"All styles",e:3,g:"Automated trend structure"},
+{n:"Median",c:"Trend",w:"Plots the median (middle value) of prices over N periods. More resistant to outliers than SMA.",f:"Median of closing prices over n periods",y:"Outlier-resistant: a single gap/spike doesn't distort it. Useful in volatile markets or crypto.",u:"Same as SMA but more robust. Divergence between median and SMA can reveal distribution/accumulation.",s:"Quant, robustness-focused",e:3,g:"Robust trend center"},
+
+// ─── MOMENTUM ───
+{n:"Relative Strength Index (RSI)",c:"Momentum",w:"Measures speed and magnitude of price changes, 0–100. Default 14. Created by Wilder.",f:"RSI = 100 − 100/(1 + RS), RS = avg gain / avg loss over n",y:"Most widely used oscillator. OB/OS (70/30) is basic; real edge is divergences and failure swings. RSI > 50 in uptrends = the trend-following application most miss.",u:"Bullish divergence = reversal signal. RSI holding above 40 in uptrend = continuation. RSI > 80 in strong trend = momentum confirmation, not OB. Range-shift: 40–80 = bull market, 20–60 = bear.",s:"All styles. Foundational.",e:5,g:"Momentum strength, divergences, regime identification"},
+{n:"MACD",c:"Momentum",w:"Difference between 12 EMA and 26 EMA, with 9 EMA signal line and histogram.",f:"MACD = EMA(12) − EMA(26). Signal = EMA(9) of MACD. Histogram = MACD − Signal.",y:"Trend + momentum in one. Histogram shows acceleration before the MACD line crosses. Histogram shrinking = momentum fading.",u:"MACD > signal = bullish. Histogram turning positive = momentum shift. Divergence = reliable reversal warning. Zero-line cross = trend change. Histogram analysis > line crossovers.",s:"All styles",e:5,g:"Trend momentum, divergences, acceleration"},
+{n:"Stochastic",c:"Momentum",w:"Compares close to high-low range over 14 periods. %K and %D lines, 0–100.",f:"%K = (Close − LL₁₄) / (HH₁₄ − LL₁₄) × 100. %D = SMA(3) of %K.",y:"Shows where close is relative to recent range. In strong trends, stays OB for extended periods — don't fade.",u:"%K > %D below 20 = buy. Above 80 = sell. BUT don't fade strong trends. Best in ranges or with trend filter.",s:"Swing, range trading",e:4,g:"Overbought/oversold, range entries"},
+{n:"Stochastic RSI",c:"Momentum",w:"Stochastic formula applied to RSI values. 0–1 (or 0–100) oscillator of RSI itself.",f:"StochRSI = (RSI − LL(RSI,n)) / (HH(RSI,n) − LL(RSI,n))",y:"More sensitive than both stochastic and RSI alone. More signals, more whipsaws, earlier entries. Popular in crypto.",u:"< 0.2 + crossover = buy. > 0.8 + crossover = sell. Use on 4h+ to reduce noise. Very effective for timing entries within confirmed trend.",s:"Crypto, short-term swing",e:4,g:"Ultra-sensitive momentum extremes"},
+{n:"Stochastic Momentum Index (SMI)",c:"Momentum",w:"Refined stochastic measuring distance of close from MIDPOINT of range, not from the low.",f:"SMI = ((Close − midpoint) / (HH−LL)/2) × 100, double-smoothed",y:"Fixes standard stochastic's false OB readings when close is in upper range but declining.",u:"SMI > 0 = bullish. Crossovers at +40/−40 = signals. Divergences = reversal warnings.",s:"Swing trading",e:3,g:"Refined overbought/oversold"},
+{n:"Connors RSI",c:"Momentum",w:"Composite: RSI(3) + up/down streak RSI + ROC percentile rank. By Larry Connors.",f:"CRSI = (RSI(3) + RSI(streak) + PercentRank(ROC,100)) / 3",y:"Strong mean-reversion properties on daily charts, especially S&P 500 stocks.",u:"CRSI < 10 = OS mean-reversion buy. > 90 = OB sell. Designed for stocks in uptrends that pull back. Best with \"above 200 SMA\" filter.",s:"Mean reversion, daily",e:4,g:"Short-term mean reversion timing"},
+{n:"Awesome Oscillator (AO)",c:"Momentum",w:"5-period vs 34-period SMA of bar midpoint (H+L)/2. Bill Williams indicator.",f:"AO = SMA(5, HL/2) − SMA(34, HL/2)",y:"Similar to MACD but uses midpoints and SMAs. Histogram color coding (green=rising, red=falling) is the visual edge.",u:"Zero-line cross = trend change. \"Twin peaks\" = bullish reversal. Saucer setup = continuation.",s:"Swing, Bill Williams method",e:3,g:"Momentum direction + reversal patterns"},
+{n:"Momentum",c:"Momentum",w:"Close minus Close(n periods ago). The rawest momentum measure.",f:"Momentum = Close − Close(n)",y:"No smoothing, no normalization — pure price change. Building block for complex indicators.",u:"Momentum > 0 and rising = strong uptrend. > 0 but falling = weakening. Divergence = early reversal warning.",s:"All styles, educational",e:3,g:"Raw price change rate"},
+{n:"Rate Of Change (ROC)",c:"Momentum",w:"Percentage Momentum: ((Close − Close(n)) / Close(n)) × 100.",f:"ROC = ((Close − Close(n)) / Close(n)) × 100",y:"Normalizes momentum as percentage — comparable across price levels and assets.",u:"ROC > 0 = bullish. Extreme readings = OB/OS. Divergences = reversal signal. Building block of KST.",s:"Quant, cross-asset comparison",e:3,g:"Normalized momentum"},
+{n:"Commodity Channel Index (CCI)",c:"Momentum",w:"Price deviation from statistical mean, normalized by mean deviation. No fixed bounds.",f:"CCI = (Typical Price − SMA(TP)) / (0.015 × Mean Deviation)",y:"The 0.015 constant puts ~75% of readings between −100 and +100. Outside = statistically significant.",u:"CCI > +100 = strong uptrend entering. < −100 = downtrend. Zero-line rejection = continuation.",s:"Trend following, breakout",e:4,g:"Statistical momentum extremes"},
+{n:"Woodies CCI",c:"Momentum",w:"Complete CCI trading system: CCI(14) + CCI(6) turbo with specific pattern rules by Ken Wood.",f:"CCI(14) main + CCI(6) turbo, histogram color-coded",y:"Full methodology with named patterns. Color histogram counts bars above/below zero.",u:"Zero-line reject = strongest pattern. 6+ bars same color = established trend. Has a dedicated following.",s:"Day trading, CCI methodology",e:3,g:"CCI-based trade patterns"},
+{n:"Chande Momentum Oscillator (CMO)",c:"Momentum",w:"Ratio of gains minus losses to their sum, −100 to +100. Uses raw (unsmoothed) data.",f:"CMO = ((ΣGains − ΣLosses) / (ΣGains + ΣLosses)) × 100",y:"No smoothing = more responsive than RSI. Used internally by KAMA.",u:"+50/−50 as OB/OS. Zero-line cross = trend change.",s:"Quant, adaptive systems",e:3,g:"Unsmoothed momentum"},
+{n:"Detrended Price Oscillator (DPO)",c:"Momentum",w:"Removes trend to isolate cycles. Difference between past price and shifted SMA.",f:"DPO = Close(n/2+1 bars ago) − SMA(n)",y:"Reveals underlying cycle length. Not for trade signals — for calibration.",u:"Count bars between DPO peaks/troughs = dominant cycle. Use cycle length to set other indicator periods.",s:"Cycle analysis, parameter optimization",e:3,g:"Cycle identification (not direct trading)"},
+{n:"Price Momentum Oscillator (PMO)",c:"Momentum",w:"Double-smoothed ROC by Carl Swenlin. More refined than MACD, less lag than standard smoothed oscillators.",f:"PMO = EMA(EMA(ROC(1)×100, 35), 20). Signal = EMA(PMO, 10).",y:"Designed for identifying market tops and bottoms. Double smoothing eliminates noise.",u:"Signal line crossing = trade signal. Above zero = bullish regime. Extreme readings = OB/OS.",s:"Market analysis, swing",e:4,g:"Smoothed momentum with regime detection"},
+{n:"Percentage Price Oscillator (PPO)",c:"Momentum",w:"MACD expressed as percentage of slower EMA. Comparable across price levels.",f:"PPO = ((EMA(12) − EMA(26)) / EMA(26)) × 100",y:"Solves MACD's flaw: MACD of $500 stock ≠ MACD of $50 stock. PPO normalizes this.",u:"Identical signals to MACD but comparable across stocks/time. Strictly superior for screening.",s:"Quant, cross-asset analysis",e:4,g:"Normalized MACD"},
+{n:"Coppock Curve",c:"Momentum",w:"WMA(10) of ROC(14)+ROC(11) on monthly data. Long-term buy signal for indices.",f:"Coppock = WMA(10, ROC(14) + ROC(11))",y:"Based on observation that market bottoms behave like grieving cycle (~11–14 months). Very few signals — maybe one every few years.",u:"Turns up from below zero = major bottom buy signal. Excellent track record on S&P 500 for catching cycle bottoms.",s:"Long-term investing, cycle",e:4,g:"Major market bottom detection"},
+{n:"Know Sure Thing (KST)",c:"Momentum",w:"Composite oscillator summing four ROC periods (10,15,20,30) with increasing weights, each smoothed.",f:"KST = SMA(ROC10)×1 + SMA(ROC15)×2 + SMA(ROC20)×3 + SMA(ROC30)×4",y:"Multi-timeframe momentum in one indicator. Weighting toward longer periods catches dominant trend.",u:"Signal line cross = trade signal. Above zero = bullish. Divergence = reversal. Best on daily/weekly.",s:"Position trading, market timing",e:4,g:"Multi-period momentum composite"},
+{n:"Pring's Special K",c:"Momentum",w:"Martin Pring's composite of multiple KST-like calculations spanning very short to very long timeframes.",f:"Sum of 12 smoothed ROCs across different periods",y:"Cycle summation: all cycles combined peak when they align = highest probability turning points.",u:"Rising = all cycles bullish. Turns from extremes = major reversals. Best on weekly/monthly.",s:"Cycle analysis, long-term",e:3,g:"Multi-cycle momentum summation"},
+{n:"RSI Divergence Indicator",c:"Momentum",w:"Automatically detects and marks bullish/bearish divergences between RSI and price.",f:"Automated swing-point comparison between price and RSI",y:"Divergence hunting is high-value but time-consuming. This automates it.",u:"Bullish divergence at support = buy. Bearish at resistance = sell. Hidden divergence = continuation. You decide context.",s:"All styles",e:4,g:"Automated divergence detection"},
+{n:"Bull Bear Power",c:"Momentum",w:"Elder's indicators: Bull Power = High − EMA(13), Bear Power = Low − EMA(13).",f:"Bull = High − EMA(13), Bear = Low − EMA(13)",y:"High = max bull power, Low = max bear power. Comparing to EMA reveals who's in control.",u:"Bull > 0 + Bear rising + EMA rising = buy. Part of Elder Triple Screen method.",s:"Swing, Elder method",e:3,g:"Buyer vs seller strength"},
+{n:"Elder Force Index",c:"Momentum",w:"Price change × Volume. Smoothed with 13 EMA. Volume confirms price moves.",f:"Force = (Close − Close(prev)) × Volume. Smoothed = EMA(13, Force)",y:"Big price move on low volume = weak. Small move on huge volume = significant. Force Index captures this.",u:"Smoothed > 0 = bulls winning. Dipping below zero in uptrend = buy the dip. Divergence = smart money signal.",s:"Swing trading",e:3,g:"Volume-confirmed momentum"},
+{n:"True Strength Index (TSI)",c:"Momentum",w:"Double-smoothed momentum oscillator. Very smooth, minimal noise, responsive to real changes.",f:"TSI = EMA(EMA(ΔClose, 25), 13) / EMA(EMA(|ΔClose|, 25), 13) × 100",y:"Double smoothing kills noise but stays responsive. Very clean.",u:"Signal line cross = trade. Above zero = bullish. Divergences = reversals. Extreme readings = strong trends.",s:"Swing, position trading",e:4,g:"Clean momentum, minimal noise"},
+{n:"SMI Ergodic Indicator",c:"Momentum",w:"TSI variant incorporating high-low range. Uses all price data, not just close.",f:"TSI formula applied to close-vs-midpoint of range",y:"Slightly more information-rich than TSI. \"Ergodic\" = converges regardless of starting point.",u:"Same as TSI: crossovers, zero-line, divergences. Marginally better in volatile markets.",s:"Swing trading",e:3,g:"Range-enhanced momentum"},
+{n:"SMI Ergodic Oscillator",c:"Momentum",w:"Histogram: SMI Ergodic minus its signal line. Like MACD histogram concept.",f:"SMI Ergodic Oscillator = SMI Ergodic − Signal",y:"Momentum of momentum — crossing zero = signal line cross. Rising = accelerating.",u:"Zero cross = entry/exit. Shrinking = fading momentum. Same logic as MACD histogram.",s:"Swing trading",e:3,g:"Momentum acceleration"},
+{n:"Relative Vigor Index (RVI)",c:"Momentum",w:"Compares where price closes relative to its range, smoothed. Uptrends close near highs.",f:"RVI = SMA(Close−Open) / SMA(High−Low)",y:"\"Vigor\" shows in where bars close. Consistently near highs = strong buying conviction.",u:"Signal line cross = trade. Divergence = weakening. Best as confirmation with RSI/MACD.",s:"Swing, confirmation",e:3,g:"Closing strength measurement"},
+{n:"Williams Percent Range (%R)",c:"Momentum",w:"Inverse stochastic: where close is in range, 0 to −100. Default 14.",f:"%R = (HH − Close) / (HH − LL) × −100",y:"Mathematically identical to Stochastic %K (inverted). Faster, simpler OB/OS tool.",u:"> −20 = OB, < −80 = OS. Persistence of extreme readings IS the signal — staying above −20 = strong trend.",s:"Range trading, confirmation",e:3,g:"Overbought/oversold"},
+{n:"Ultimate Oscillator",c:"Momentum",w:"Larry Williams' weighted average of 3 period oscillators (7,14,28). Multiple timeframes filter noise.",f:"Weighted average of buying pressure / TR across 7, 14, 28 periods",y:"Single-period oscillators see only one cycle. Averaging three timeframes with 4:2:1 weights filters noise.",u:"Bullish divergence below 30 = buy. Bearish above 70 = sell. Williams required divergence AND breakout.",s:"Swing, divergence trading",e:3,g:"Multi-period divergence signals"},
+{n:"Fisher Transform",c:"Momentum",w:"Converts prices into Gaussian distribution. Extreme moves become sharp, distinct turning points.",f:"Fisher = 0.5 × ln((1+x)/(1−x)), normalized price",y:"Creates sharp peaks/troughs — much cleaner turning-point signals than raw oscillators.",u:"Crossing signal line = trade. Extreme readings with reversal = high probability. Easy to automate.",s:"Systematic, algos",e:4,g:"Sharp turning-point identification"},
+{n:"Balance of Power (BOP)",c:"Momentum",w:"(Close − Open) / (High − Low). Who won each bar, −1 to +1.",f:"BOP = (Close − Open) / (High − Low)",y:"Smoothed BOP reveals institutional accumulation/distribution.",u:"Smoothed > 0 = buyers in control. Divergence = smart money positioning against trend.",s:"Swing, institutional flow",e:3,g:"Buyer/seller dominance"},
+{n:"Vortex Indicator",c:"Momentum",w:"Two lines (VI+, VI−) measuring positive/negative trend movement. Based on Wilder's True Range.",f:"VI+ = SMA(|H−prevL|)/SMA(TR). VI− = SMA(|L−prevH|)/SMA(TR).",y:"Crossovers are clean trend-change signals.",u:"VI+ > VI− = uptrend. Crossover = trend change. Good trend filter for other indicators.",s:"Trend following",e:3,g:"Trend direction crossover"},
+{n:"Rank Correlation Index (RCI)",c:"Momentum",w:"Spearman's rank correlation between price rank and time rank. Measures trend monotonicity.",f:"RCI = (1 − 6×Σd²/(n(n²−1))) × 100",y:"Purely statistical. RCI = +100 = perfect uptrend. −100 = perfect downtrend.",u:"> +80 = very strong trend. Zero cross = change. Multi-period (9+26+52) shows alignment.",s:"Quant, statistical",e:3,g:"Statistical trend strength"},
+{n:"RCI Ribbon",c:"Momentum",w:"Multiple RCI lines as ribbon across lookback periods.",f:"Multiple RCI calculations, different periods",y:"All timeframes aligned = highest probability of continuation.",u:"All in upper zone = strong uptrend. Twist = potential reversal. Popular in Japanese trading.",s:"Swing, Japanese TA",e:3,g:"Multi-period trend alignment"},
+{n:"TRIX",c:"Momentum",w:"ROC of triple-smoothed EMA. Very smooth, very few false signals.",f:"TRIX = ROC(1) of EMA(EMA(EMA(Close, n)))",y:"Triple smoothing kills noise. Signals are rare but high quality.",u:"Above zero = bullish. Signal crossover = entry. Divergence = reversal.",s:"Position trading",e:4,g:"Ultra-clean trend momentum"},
+
+// ─── VOLUME ───
+{n:"Volume",c:"Volume",w:"Raw shares/contracts traded per period. Most fundamental data after price.",f:"Direct market data",y:"Volume validates moves. High volume breakout = real. Low volume = likely failure. Volume is fuel.",u:"Spike at support = accumulation. At resistance = distribution/breakout. Declining in trend = weakening. Climax = turning point.",s:"All styles. Non-negotiable.",e:5,g:"Move validation, turning points"},
+{n:"24-hour Volume",c:"Volume",w:"Rolling 24h volume, primarily for 24/7 crypto markets.",f:"Σ(volume over trailing 24 hours)",y:"Crypto has no sessions, so daily bars are arbitrary. Rolling 24h is more consistent.",u:"Compare to average: above = conviction, below = weak move. Essential for crypto.",s:"Crypto trading",e:4,g:"Continuous volume (crypto)"},
+{n:"On Balance Volume (OBV)",c:"Volume",w:"Cumulative volume: adds on up days, subtracts on down days. Created by Joe Granville.",f:"Up close: OBV += Vol. Down close: OBV −= Vol.",y:"Volume precedes price. Rising OBV + flat price = accumulation, breakout coming. One of the most reliable leading indicators.",u:"OBV new highs before price = bullish divergence. OBV declining + price rising = distribution. OBV breakout above trendline = buy.",s:"All styles",e:5,g:"Accumulation/distribution, leading indicator"},
+{n:"Accumulation/Distribution",c:"Volume",w:"Volume weighted by where close falls in H-L range. Near high = accumulation, near low = distribution.",f:"CLV = ((C−L)−(H−C))/(H−L). A/D += CLV × Vol.",y:"More nuanced than OBV — considers WHERE close is in bar. Strong A/D divergence = one of the strongest signals.",u:"A/D rising = accumulation. Divergence from price = very strong reversal signal.",s:"All styles",e:5,g:"Weighted accumulation/distribution"},
+{n:"Chaikin Money Flow (CMF)",c:"Volume",w:"Sum of CLV×Vol over N periods / total volume. Bounded ~−1 to +1.",f:"CMF = Σ(CLV×Vol, n) / Σ(Vol, n)",y:"Normalizes A/D into bounded oscillator. Sustained positive = buying pressure.",u:"CMF > 0 = bullish. Rising while price pulls back = dip buy. Above +0.25 = very strong.",s:"Swing, institutional flow",e:4,g:"Bounded money flow pressure"},
+{n:"Chaikin Oscillator",c:"Volume",w:"MACD of A/D line: EMA(3) of A/D minus EMA(10) of A/D.",f:"Chaikin Osc = EMA(3, A/D) − EMA(10, A/D)",y:"Rate of change of accumulation/distribution. Is the flow ACCELERATING?",u:"Above zero = accelerating accumulation. Below = accelerating distribution.",s:"Swing trading",e:3,g:"A/D momentum"},
+{n:"Money Flow Index (MFI)",c:"Volume",w:"Volume-weighted RSI, 0–100. Default 14.",f:"Like RSI but uses Typical Price × Volume",y:"Adds volume to RSI. OB/OS readings carry more weight. More reliable than RSI divergence alone.",u:"MFI > 80 = OB, < 20 = OS. Divergence = very strong (price + volume diverging). Combine with BB %b < 0.05 AND MFI < 20 = Bollinger's best buy.",s:"Swing, divergence",e:4,g:"Volume-weighted OB/OS"},
+{n:"Klinger Oscillator",c:"Volume",w:"Volume force comparing EMA(34) vs EMA(55). Considers range + direction of each bar.",f:"KO = EMA(34, Volume Force) − EMA(55, Volume Force)",y:"More sophisticated than OBV. Captures long-term flow while remaining sensitive short-term.",u:"Above zero = net buying. Signal crossover = trade. Divergence = flow doesn't support trend.",s:"Swing, position",e:3,g:"Sophisticated volume flow"},
+{n:"Net Volume",c:"Volume",w:"Up volume minus down volume per bar.",f:"Net Volume = Up Vol − Down Vol",y:"Shows net direction of volume pressure without cumulating. Each bar is independent.",u:"Sustained positive = buying pressure. Divergence from price = flow mismatch.",s:"Day trading, confirmation",e:3,g:"Real-time buy/sell volume"},
+{n:"Up/Down Volume",c:"Volume",w:"Separates volume into up-tick and down-tick components, colored bars.",f:"Volume classified by price direction",y:"More granular — see BOTH buying and selling volume, not just net. Equal up/down = disagreement.",u:"Large green at support = aggressive buying. Equal up/down on big move = uncertain continuation.",s:"Day trading, tape reading",e:3,g:"Granular buy/sell pressure"},
+{n:"Volume Delta",c:"Volume",w:"Volume at ask minus volume at bid. Most direct measure of aggressive buying vs selling.",f:"Delta = Vol at Ask − Vol at Bid",y:"Market orders hitting ask = aggressive buyers. This IS order flow on a chart.",u:"Positive delta + rising price = genuine buying. Positive delta + falling = absorption. Divergence = most powerful volume signal.",s:"Day trading, order flow",e:5,g:"Aggressive buyer/seller imbalance"},
+{n:"Cumulative Volume Delta",c:"Volume",w:"Running sum of Volume Delta over time.",f:"CVD = Σ(Vol at Ask − Vol at Bid)",y:"Like OBV but using actual order flow. Gold standard for volume analysis.",u:"Rising CVD + flat price = accumulation (buy). CVD divergence = strongest volume divergence available.",s:"Day trading, order flow",e:5,g:"Cumulative order flow imbalance"},
+{n:"Cumulative Volume Index",c:"Volume",w:"Cumulative sum of advancing vs declining volume market-wide. Breadth-volume indicator.",f:"CVI = CVI(prev) + (Advancing Vol − Declining Vol)",y:"Shows volume flow into advancing vs declining stocks. Divergence from index = narrow volume support.",u:"CVI new high with index = healthy. Diverging = narrow rally. Market-level indicator.",s:"Market analysis, breadth",e:4,g:"Market-wide volume breadth"},
+{n:"Price Volume Trend (PVT)",c:"Volume",w:"Like OBV but proportional: adds percentage of volume based on price change size.",f:"PVT += Vol × ((Close − prevClose) / prevClose)",y:"More proportional than OBV. A 5% move contributes more than 0.1%. Conceptually superior.",u:"Rising = accumulation. Divergence = distribution. More accurate than OBV for most purposes.",s:"Swing, volume analysis",e:4,g:"Proportional volume accumulation"},
+{n:"Negative Volume Index (NVI)",c:"Volume",w:"Only changes on days when volume DECREASES. Smart money trades on quiet days.",f:"If Vol < prevVol: NVI += ROC. Else unchanged.",y:"Dysart's concept (1930s): smart money accumulates quietly. NVI above 255-day MA = 96% prob of bull market.",u:"NVI > 255 MA = bull market. Below = bear risk. Very simple, very powerful for long-term timing.",s:"Long-term investing, market timing",e:4,g:"Smart money positioning"},
+{n:"Positive Volume Index (PVI)",c:"Volume",w:"Only changes on high-volume days. Captures uninformed crowd behavior.",f:"If Vol > prevVol: PVI += ROC. Else unchanged.",y:"High-volume days = public participation. When PVI diverges from NVI = smart vs crowd divergence.",u:"Compare PVI and NVI: crowd selling but smart money buying = contrarian bullish.",s:"Market timing, contrarian",e:3,g:"Crowd behavior tracking"},
+{n:"Ease of Movement (EMV)",c:"Volume",w:"Price change per unit of volume. High EMV = price moving freely on low volume.",f:"EMV = ((H+L)/2 − (prevH+prevL)/2) / (Vol/(H−L))",y:"Tells whether price moves freely or with effort. Free = no resistance. Labored = struggling.",u:"EMV > 0 = upward ease. Rising price + declining EMV = losing steam. Zero cross = potential change.",s:"Volume analysis, trend quality",e:3,g:"Price movement efficiency"},
+{n:"Percentage Volume Oscillator (PVO)",c:"Volume",w:"MACD applied to volume: % difference between fast and slow volume EMAs.",f:"PVO = ((EMA(12,Vol) − EMA(26,Vol)) / EMA(26,Vol)) × 100",y:"Volume expanding or contracting relative to its own trend.",u:"Rising above zero = expanding (confirms breakouts). Declining = contracting (exhaustion).",s:"Breakout confirmation",e:3,g:"Volume expansion/contraction"},
+{n:"Relative Volume at Time (RVOL)",c:"Volume",w:"Current volume vs average volume for THAT specific time of day over past sessions.",f:"RVOL = Current vol at T / Avg vol at T over N days",y:"Volume varies by time of day. RVOL normalizes for this. 3× normal at 10:30 AM is genuinely unusual.",u:"RVOL > 2.0 = unusually active. > 3.0 = exceptional, likely news. High RVOL + gap = institutional interest.",s:"Day trading, event detection",e:5,g:"Abnormal volume detection"},
+{n:"Open Interest",c:"Volume",w:"Total outstanding derivative contracts. Not volume — shows positions held.",f:"Exchange-reported data",y:"Rising price + rising OI = new money entering (strong). Rising price + falling OI = short covering (weak).",u:"Trend + rising OI = trust it. Trend + falling OI = weakening. Max pain = strike with most OI.",s:"Futures, options, derivatives",e:4,g:"Market participation + positioning"},
+{n:"VWAP",c:"Volume",w:"Average price weighted by volume for the session. Resets daily. THE institutional benchmark.",f:"VWAP = Σ(Price × Vol) / Σ(Vol)",y:"Institutions measure execution vs VWAP. Algos push price toward it. Institutional magnet.",u:"Above VWAP = bullish intraday. First touch after gap = high-prob entry. With σ bands = intraday S/R.",s:"Day trading (essential), institutional",e:5,g:"Institutional fair value, intraday S/R"},
+{n:"VWAP Auto Anchored",c:"Volume",w:"VWAP anchored to significant events (earnings, highs, lows) instead of resetting daily.",f:"VWAP from auto-detected anchor point",y:"Shows average price since event. If above, those holders are profitable and will defend.",u:"Anchor from swing low — if held, dip buyers defend. From earnings = post-earnings positioning. Multiple anchored VWAPs = confluence map.",s:"Swing, position management",e:5,g:"Event-anchored fair value"},
+{n:"Volume Weighted Moving Average (VWMA)",c:"Volume",w:"MA where each price is weighted by its volume. High-volume bars count more.",f:"VWMA = Σ(Price × Vol, n) / Σ(Vol, n)",y:"SMA treats all bars equal. VWMA gives weight to conviction. VWMA vs SMA divergence = volume-price disagreement.",u:"VWMA > SMA = up days have more volume (bullish). Below = selling on heavy volume. Drop-in SMA replacement.",s:"Swing, volume-weighted",e:4,g:"Volume-weighted trend direction"},
+{n:"Time Weighted Average Price (TWAP)",c:"Volume",w:"Average price weighted equally over time, regardless of volume. Algo execution benchmark.",f:"TWAP = Σ(Price) / intervals",y:"Some algos execute on TWAP schedule. Less useful as trading indicator, more for understanding algo behavior.",u:"TWAP vs VWAP divergence = volume isn't evenly distributed (event).",s:"Institutional, algo context",e:2,g:"Time-based benchmark"},
+{n:"Visible Average Price",c:"Volume",w:"Average price across all visible bars on current chart view.",f:"Mean of visible closes",y:"Quick visual reference. Changes as you scroll/zoom. Minor utility.",u:"Tells if current price is above/below the on-screen average. Visual orientation.",s:"Visual reference",e:2,g:"Visual orientation only"},
+
+// ─── VOLATILITY ───
+{n:"Average True Range (ATR)",c:"Volatility",w:"Average of True Range over N periods. Default 14. Measures volatility in price units.",f:"TR = max(H−L, |H−prevC|, |L−prevC|). ATR = SMA/RMA of TR.",y:"THE volatility measure for position sizing. ATR = what normal movement looks like, so set stops beyond it.",u:"Stop = 1.5–3× ATR. Position size = risk$ / (ATR × mult). Rising = expanding vol (breakout/panic). Falling = compression (expect big move).",s:"All styles. Essential risk management.",e:5,g:"Volatility, position sizing"},
+{n:"Average Daily Range (ADR)",c:"Volatility",w:"Average daily H-L range over N days. Expected daily movement.",f:"ADR = SMA(H−L, n) on daily",y:"If ADR = $10 and stock moved $9 today, little room left. Sets realistic intraday targets.",u:"Day trade targets ≤ 75–100% ADR. Moved > 100% = mean reversion. Expansion = trending. Compression = range.",s:"Day trading, target setting",e:4,g:"Expected daily range"},
+{n:"Bollinger Bands",c:"Volatility",w:"20 SMA ± 2σ bands. Widen in volatility, compress in quiet markets.",f:"Middle = SMA(20). Upper/Lower = SMA ± 2σ.",y:"Capture ~95% of price. Squeeze (minimum bandwidth) is one of the most reliable setups. Band walk = strong trend.",u:"Squeeze → expect big move. Riding upper band = strong (NOT OB). Close outside = extreme. Mean revert to 20 SMA after touches.",s:"All styles",e:5,g:"Volatility bands, squeeze, trend strength"},
+{n:"Bollinger Bands %b",c:"Volatility",w:"Where price is relative to BBs: 0=lower, 1=upper, 0.5=middle.",f:"%b = (Close − Lower) / (Upper − Lower)",y:"BBs as bounded oscillator. Easy to build systematic rules. Combine with MFI for Bollinger's best signals.",u:"%b > 1.0 = above upper band. < 0 = below lower. %b < 0.05 AND MFI < 20 = Bollinger's best buy.",s:"Systematic, swing",e:4,g:"BB position as oscillator"},
+{n:"Bollinger BandWidth",c:"Volatility",w:"BB width as percentage: (Upper−Lower)/Middle × 100. Quantifies compression/expansion.",f:"BandWidth = (Upper − Lower) / Middle × 100",y:"Lowest BandWidth in 125 bars = guaranteed major move. The Squeeze quantified.",u:"125-bar low = \"The Squeeze.\" Direction from price closing beyond bands. BB inside Keltner = confirmed squeeze.",s:"Breakout, volatility trading",e:5,g:"Volatility compression → breakout"},
+{n:"Bollinger Bars",c:"Volatility",w:"Colors candles based on BB position.",f:"Bar color = f(%b)",y:"Visual aid — instant OB/OS scan without full BB overlay.",u:"Quick visual scan. Less depth than %b.",s:"Visual aid",e:2,g:"Visual BB position"},
+{n:"BBTrend",c:"Volatility",w:"Difference between short and long BB BandWidth. Trend vs range detection.",f:"BBTrend = |BandWidth(short) − BandWidth(long)|",y:"Short-term vol > long-term = new trend forming. Converging = mature trend.",u:"Rising from zero = new trend. Extreme = mature trend. Regime classifier.",s:"Regime classification",e:3,g:"Trend vs range detection"},
+{n:"Keltner Channels",c:"Volatility",w:"EMA(20) ± 2×ATR(10). ATR-based bands, more stable than Bollinger.",f:"Middle = EMA(20). Upper/Lower = EMA ± 2×ATR(10).",y:"Key use: Bollinger-Keltner squeeze. BBs contract inside KC = confirmed squeeze.",u:"BB inside KC = squeeze ON. BB outside KC = squeeze fires. Price beyond KC = strong trend.",s:"Breakout, squeeze trading",e:5,g:"ATR channels, squeeze confirmation"},
+{n:"Donchian Channels",c:"Volatility",w:"Highest high / lowest low over N periods. Original Turtle Trading channel.",f:"Upper = HH(n). Lower = LL(n). Middle = (U+L)/2.",y:"Turtle Traders used 20/55 Donchian breakouts for ~80% annual returns in the 1980s.",u:"Break above upper = buy. Below lower = sell. 20-day entry, 10-day exit = classic Turtle. ~40% win rate but large winners.",s:"Trend following, breakout",e:4,g:"N-day breakout levels"},
+{n:"Envelope",c:"Volatility",w:"Bands at fixed percentage above/below MA. Simpler than Bollinger.",f:"Upper = MA × (1+%). Lower = MA × (1−%).",y:"Fixed = consistent zones but doesn't adapt to volatility. Some quant strategies prefer this.",u:"Upper = OB/strong. Lower = OS/weak. Break = significant move.",s:"Rules-based trading",e:3,g:"Fixed-% deviation bands"},
+{n:"Historical Volatility",c:"Volatility",w:"Annualized std dev of log returns. Textbook realized volatility.",f:"HV = StdDev(ln(C/prevC), n) × √252",y:"Baseline for comparing IV to realized vol. IV > HV = options expensive. HV > IV = options cheap.",u:"Compare to IV for options trades. Low HV = expect expansion. HV percentile rank over 1yr > absolute HV.",s:"Options, volatility analysis",e:4,g:"Realized volatility measurement"},
+{n:"Relative Volatility Index (RVI)",c:"Volatility",w:"RSI applied to standard deviation. Measures whether vol is expanding or contracting.",f:"RSI formula on std dev of price over 10 bars",y:"RVI > 50 = expanding (trend-following). < 50 = contracting (mean-reversion). Regime filter.",u:"Filter: breakouts when RVI > 50. Mean-reversion when RVI < 50. Context, not standalone.",s:"Strategy selection, regime",e:3,g:"Vol expansion/contraction"},
+{n:"Chande Kroll Stop",c:"Volatility",w:"ATR-based trailing stop with two lines: long stop and short stop.",f:"ATR-adjusted stops over lookback period",y:"Clear vol-adjusted stop levels. Auto-widen in volatile, tighten in quiet.",u:"Close below green = exit longs. Cross of lines = trend change.",s:"Trend following, stop mgmt",e:4,g:"Volatility-adjusted stops"},
+{n:"Chandelier Exit",c:"Volatility",w:"ATR trailing stop from highest high (longs) or lowest low (shorts). Default 22, 3× ATR.",f:"Long: HH(22) − 3×ATR(22). Short: LL(22) + 3×ATR(22).",y:"Hangs stop from highest point like a chandelier. 3× ATR survives most pullbacks.",u:"Enter on signal, set Chandelier as trailing stop. Flip on cross. Very popular with trend followers.",s:"Trend following, position mgmt",e:4,g:"ATR-based trailing stop"},
+{n:"Volatility Stop",c:"Volatility",w:"ATR-based trailing stop with direction flip. Green dots below = up, red above = down.",f:"ATR stop with flip on close beyond",y:"Clean visual direction. Simpler than Chandelier.",u:"Dot flip = direction change. Wider mult = fewer whipsaws, later exits.",s:"Trend following, visual stops",e:4,g:"Visual trailing stop"},
+{n:"Ulcer Index",c:"Volatility",w:"Root mean square of % drawdowns from highs. Measures downside pain only.",f:"UI = √(Σ(%DD from N-high)² / N)",y:"Std dev treats up/down equally. Ulcer Index = downside only. More realistic risk.",u:"Martin Ratio = (Return−Rf)/UI. Low UI = smooth equity curve. Compare across assets.",s:"Portfolio analysis, risk mgmt",e:4,g:"Downside-only risk"},
+
+// ─── S/R ───
+{n:"Auto Fib Retracement",c:"Support/Resistance",w:"Auto-draws Fib retracements (23.6%, 38.2%, 50%, 61.8%, 78.6%) from swing highs/lows.",f:"Swing detection + Fibonacci ratios",y:"Self-fulfilling prophecy — so many traders use them. 61.8% and 50% most watched. Provides structure in pullbacks.",u:"Buy 50–61.8% with confirmation. 38.2% = shallow (strong trend). 61.8% = deep. 78.6% = last defense. Stack with other S/R.",s:"Swing, pullback entries",e:4,g:"Pullback S/R zones"},
+{n:"Auto Fib Extension",c:"Support/Resistance",w:"Projects Fibonacci extensions beyond swing for profit targets.",f:"Swing detection + Fib ratios projected",y:"Retracements = where to buy. Extensions = where to take profits. 127.2% and 161.8% most common.",u:"Target 127.2% conservative, 161.8% aggressive, 261.8% dream. Use as trail-stop trigger.",s:"Target setting, trade mgmt",e:4,g:"Profit target projection"},
+{n:"Auto Pitchfork",c:"Support/Resistance",w:"Andrews' Pitchfork from 3 pivots. Median line with parallel channels.",f:"Median through P1, parallel to P2–P3 line",y:"Price returns to median line ~80% of the time. Remarkably well-respected channels.",u:"Upper fork = resistance. Lower = support. Median = target. Boundary break = significant change.",s:"Swing, position",e:3,g:"Median line channels"},
+{n:"Pivot Points Standard",c:"Support/Resistance",w:"Pivot + S1–S3 and R1–R3 from prior H, L, C. Floor trader levels.",f:"P=(H+L+C)/3. S1=2P−H. R1=2P−L. S2=P−(H−L). R2=P+(H−L).",y:"Oldest calculated S/R. Institutions and market makers reference them.",u:"Above pivot = bullish bias. S1/R1 = first targets. Best intraday, first hour especially.",s:"Day trading, intraday S/R",e:4,g:"Calculated daily S/R"},
+{n:"Pivot Points High Low",c:"Support/Resistance",w:"Marks swing highs/lows based on N bars higher/lower on each side.",f:"Swing high: N higher bars each side",y:"Defines market structure objectively. Foundation of trend definition.",u:"Break of prior high = continuation. Break of low = reversal. These become future S/R.",s:"All styles, structure",e:4,g:"Objective swing point ID"},
+{n:"Rob Booker - Intraday Pivot Points",c:"Support/Resistance",w:"Rob Booker's pivot variation for intraday timeframes.",f:"Proprietary pivot variation",y:"Optimized for session-based strategies.",u:"Same as standard pivots. Fading to pivots during first hour.",s:"Day trading, forex",e:3,g:"Session-optimized pivots"},
+{n:"Rob Booker - Missed Pivot Points",c:"Support/Resistance",w:"Identifies untested pivot levels from previous sessions.",f:"Historical pivot tracking with touch detection",y:"Untested pivots act as magnets. Like unfilled gaps = unfinished business.",u:"Missed pivots = potential targets. Price between missed S1/R1 = likely boundaries.",s:"Day trading, targets",e:3,g:"Untested historical pivots"},
+{n:"Rob Booker - Reversal",c:"Support/Resistance",w:"Marks potential reversal zones from proprietary counting/pattern method.",f:"Proprietary pattern detection",y:"Multiple factors align at a level. Screening tool, not direct signal.",u:"Markers at S/R = higher probability. Confirmation needed.",s:"Swing trading",e:3,g:"Reversal zone ID"},
+{n:"Rob Booker - Knoxville Divergence",c:"Support/Resistance",w:"Dual divergence: momentum AND stochastic diverging simultaneously.",f:"Dual divergence detection",y:"Single divergences have high false-positive rate. Requiring BOTH improves quality significantly.",u:"Green dot at support = buy. Red at resistance = sell. Respected divergence tool.",s:"Swing, reversal",e:4,g:"Dual-confirmed divergence"},
+{n:"Rob Booker - Ziv Ghost Pivots",c:"Support/Resistance",w:"Projected future pivot levels based on current structure and patterns.",f:"Projected pivot calculations",y:"Forward-looking pivot projection. Plan trades before market opens.",u:"Ghost pivots = projected S/R. Place limit orders. Best in consistent-range markets.",s:"Forex day trading",e:3,g:"Projected future pivots"},
+{n:"Williams Fractals",c:"Support/Resistance",w:"5-bar swing highs/lows: middle bar highest/lowest with 2 lower/higher on each side.",f:"Fractal up: H(n) > H(n±1,n±2). Down: opposite.",y:"Bill Williams' structure definition. Each fractal = potential S/R and breakout point.",u:"Break above fractal high = buy (with Alligator). Stack at same level = strong zone.",s:"Bill Williams, structure",e:3,g:"5-bar swing identification"},
+{n:"Zig Zag",c:"Support/Resistance",w:"Connects significant swings, filtering moves < specified percentage.",f:"Connect points where reversal > X%",y:"Visualization tool, not trading indicator. Shows price skeleton. ⚠️ REPAINTS — redraws past data.",u:"Identify waves for Elliott analysis. Measure swing sizes. DO NOT trade signals — it repaints.",s:"Analysis tool (not signals)",e:3,g:"Structure visualization (REPAINTS)"},
+{n:"Price Target",c:"Support/Resistance",w:"Analyst consensus price targets from Wall Street.",f:"Aggregated analyst estimates",y:"Analysts are bad at timing and revise AFTER moves. Use for consensus context.",u:"Cluster = potential magnet. Use to know consensus, then decide if you agree.",s:"Fundamental context",e:2,g:"Consensus analyst targets"},
+
+// ─── TREND STRENGTH ───
+{n:"Average Directional Index (ADX)",c:"Trend Strength",w:"Trend STRENGTH (not direction), 0–100. Part of DMI system. Created by Wilder.",f:"ADX = smoothed |+DI − −DI| / (+DI + −DI) × 100",y:"Most important question: is there a trend? ADX < 20 = no trend. > 25 = trending. Determines which strategy to use.",u:"ADX > 25 = use MACD/MA crossovers. ADX < 20 = use RSI/stochastic. Rising = strengthening. +DI > −DI = bullish.",s:"All styles. Essential regime filter.",e:5,g:"Trend strength + regime classification"},
+{n:"Directional Movement Index (DMI)",c:"Trend Strength",w:"Full system: +DI, −DI, and ADX together. Trend strength + direction.",f:"+DM = H−prevH, −DM = prevL−L (conditions), normalized by ATR",y:"Everything: strength (ADX), direction (+DI vs −DI), crossover signals.",u:"+DI > −DI with rising ADX = strong buy. ADX above both DI = very strong (rare, powerful).",s:"Trend following, systematic",e:5,g:"Complete trend direction + strength"},
+{n:"Aroon",c:"Trend Strength",w:"Two lines measuring periods since last N-period high/low. 0–100.",f:"Aroon Up = ((N − bars since high)/N) × 100. Down = same for low.",y:"Strong uptrend = new highs frequent (Up near 100). Weak = distant (Up low).",u:"Up > 70 AND Down < 30 = strong uptrend. Crossover = change. Both < 50 = consolidation.",s:"Trend ID, breakout timing",e:4,g:"Recency of highs/lows"},
+{n:"Aroon Oscillator",c:"Trend Strength",w:"Aroon Up minus Down. −100 to +100. Single line simplification.",f:"Aroon Osc = Aroon Up − Aroon Down",y:"Easier to scan than two lines. Zero cross = change. Extremes = strong trend.",u:"> +50 = strong up. < −50 = strong down. Use as filter.",s:"Trend following, scanning",e:3,g:"Single-line trend strength"},
+{n:"Choppiness Index",c:"Trend Strength",w:"ATR relative to H-L range. 0–100. Above 61.8 = choppy, below 38.2 = trending.",f:"CHOP = 100 × LOG10(Σ ATR(1,n)/(HH−LL)) / LOG10(n)",y:"One of the best regime classifiers. The 38.2/61.8 Fibonacci levels define the zones.",u:"CHOP > 61.8: mean reversion. < 38.2: trend strategies. Falling from high = breakout starting. Rising from low = exhausting.",s:"Regime classification. Essential.",e:5,g:"Trending vs ranging regime"},
+{n:"Chop Zone",c:"Trend Strength",w:"Color-coded choppiness per bar. Green/red = trending, yellow = choppy.",f:"Close-to-close angle vs EMA, color-coded",y:"Instant visual regime. Faster to read than Choppiness Index.",u:"Yellow cluster = don't trade momentum. Green cluster = ride it. Yellow→Green = new trend.",s:"Visual regime filter",e:3,g:"Visual trend/chop"},
+{n:"Trend Strength Index",c:"Trend Strength",w:"Composite indicator from multiple trend metrics.",f:"Proprietary composite",y:"Multi-factor = more robust than single measure.",u:"High = strong trend. Low = no trend. Master filter for strategy selection.",s:"Regime filtering",e:3,g:"Composite trend strength"},
+{n:"Technical Ratings",c:"Trend Strength",w:"TradingView's aggregate of MA, oscillator, and pivot signals → buy/sell/neutral.",f:"Weighted aggregate of multiple indicator signals",y:"Quick consensus summary. Too blunt for serious analysis but useful for screening.",u:"\"Strong Buy\" = most aligned bullish. Screening filter only.",s:"Screening, overview",e:3,g:"Multi-indicator consensus"},
+{n:"Mass Index",c:"Trend Strength",w:"H-L range expansion/contraction. \"Reversal bulge\" when range widens then narrows.",f:"Mass = Σ(EMA(9,H−L) / EMA(9,EMA(9,H−L)), 25)",y:"Ranges expand before reversals. Mass > 27 then < 26.5 = bulge (reversal setup).",u:"Bulge = reversal coming, direction from other indicators. Not directional itself.",s:"Reversal detection",e:3,g:"Range-based reversal setup"},
+
+// ─── BREADTH ───
+{n:"Advance Decline Line",c:"Breadth",w:"Cumulative advancers minus decliners. THE primary breadth indicator.",f:"A/D Line = Σ(Advancing − Declining Issues)",y:"Divergence from index has preceded EVERY major market top. Narrow rally without breadth = failure.",u:"New high with index = healthy. Diverging = warning. Leading lower = major warning.",s:"Market analysis, macro timing",e:5,g:"Market participation breadth"},
+{n:"Advance Decline Ratio",c:"Breadth",w:"Advancing / declining issues. > 1 = more advancers.",f:"A/D Ratio = Advancing / Declining",y:"Extreme readings (> 2.0) = breadth thrust, often signals new bull market.",u:"Sustained high ratio = breadth thrust. Low = breadth collapse.",s:"Market analysis",e:4,g:"Market breadth ratio"},
+{n:"Advance/Decline Ratio (Bars)",c:"Breadth",w:"Same as A/D Ratio in histogram bar format.",f:"Same calc, bar display",y:"Easier to see daily breadth at a glance. Visual preference.",u:"Same interpretation. Green = positive breadth.",s:"Market analysis, visual",e:4,g:"Visual breadth bars"},
+
+// ─── PATTERN ───
+{n:"Gaps",c:"Pattern",w:"Identifies price gaps (open above/below prior range).",f:"Gap up: Open > prevH. Gap down: Open < prevL.",y:"Overnight information. Most fill eventually, but breakaway gaps at trend starts often don't.",u:"Gap and go: high volume + hold = continue. Gap fill = S/R at edge. Classify: breakaway (don't fade), exhaustion (can fade), common.",s:"Day, swing trading",e:4,g:"Gap identification"},
+{n:"Seasonality",c:"Pattern",w:"Average historical performance by month/week across past years.",f:"Avg return by calendar period over N years",y:"Seasonal effects are real and significant. Tax-loss selling, window dressing, earnings seasonality.",u:"Enter during strong periods. Avoid/hedge during weak. Statistical tendency, not guarantee.",s:"Position timing",e:4,g:"Calendar patterns"},
+{n:"Moon Phases",c:"Pattern",w:"Plots full and new moons.",f:"Astronomical lunar cycle",y:"Some believe lunar cycles affect markets. Academic evidence is extremely thin.",u:"Near-zero statistical edge. Minor tendency for higher returns around new moons, but too small to trade after costs.",s:"Novelty",e:1,g:"Lunar cycle (minimal evidence)"},
+{n:"Multi-Time Period Charts",c:"Pattern",w:"Overlays multiple timeframe candles on one chart.",f:"Aggregates bars from multiple timeframes",y:"Multi-timeframe analysis is the single most underrated skill. Higher TF = direction, lower = entry.",u:"Weekly at support + daily hammer = high conviction. 3-timeframe alignment = highest probability.",s:"All styles. Essential concept.",e:5,g:"Multi-TF alignment"},
+{n:"Trading Sessions",c:"Pattern",w:"Marks Asian, European, US sessions with colored backgrounds.",f:"Time-zone session boundaries",y:"Sessions have personalities: Asian = range, London = breakout, NY = follow-through/reversal.",u:"London open = breakout window. NY open = institutional surge. Overlaps = highest vol.",s:"Forex, futures day trading",e:4,g:"Session-based context"},
+{n:"Performance",c:"Pattern",w:"% performance over various lookback periods.",f:"% change per lookback",y:"Quick snapshot for scanning. Strong performance tends to persist (momentum effect).",u:"Compare across instruments for relative strength leaders/laggards.",s:"Screening, relative strength",e:3,g:"Multi-period performance"},
+{n:"Correlation Coefficient",c:"Pattern",w:"Pearson correlation (−1 to +1) between two instruments over N periods.",f:"r = Σ((X−X̄)(Y−Ȳ)) / √(Σ(X−X̄)²Σ(Y−Ȳ)²)",y:"Diversification only works when assets aren't correlated. Correlations spike in crises.",u:"r > 0.7 = no diversification. < 0.3 = good. Negative = hedging. Breakdowns = regime changes.",s:"Portfolio, hedging",e:4,g:"Inter-asset relationship"},
+
+// ─── ON-CHAIN ───
+{n:"RVT Ratio (90 days)",c:"On-Chain",w:"Realized Cap / (90-day MA of on-chain transaction volume). Like P/E for blockchain.",f:"RVT = Realized Cap / 90d-MA(tx volume)",y:"Measures whether network is overvalued relative to economic activity.",u:"High RVT = overvalued vs usage (bearish). Low = undervalued (bullish). Trending up = declining usage.",s:"Crypto fundamentals, long-term",e:4,g:"Crypto valuation vs activity"},
+{n:"Realized Market Cap",c:"On-Chain",w:"Values each coin at the price it LAST moved, not current price. Aggregate cost basis.",f:"Realized Cap = Σ(each UTXO × price when last moved)",y:"More accurate than market cap. Price below realized cap = network underwater (generational buy zone: 2018, 2022).",u:"Below realized cap = historically incredible buy. Rising = new capital. Flat + rising price = HODLers not selling. MVRV ratio (MktCap/RealizedCap) = most powerful crypto metric.",s:"Crypto long-term investing",e:5,g:"Aggregate network cost basis"},
+{n:"Supply Equality Ratio",c:"On-Chain",w:"Distribution of supply: small vs large holders.",f:"Ratio comparing supply across address sizes",y:"Extreme concentration = vulnerable. Wider distribution = healthier, resilient.",u:"Rising = whales distributing to smaller holders (long-term positive). Falling = reconcentration.",s:"Crypto structural analysis",e:3,g:"Supply distribution health"},
+{n:"1 Year Active Supply %",c:"On-Chain",w:"% of supply that moved on-chain in last 365 days. Inverse = HODLer supply.",f:"Coins moved in 365d / total × 100",y:"Low = HODLers sitting tight (bullish — no sell pressure). BTC bottoms = lowest active supply %.",u:"Declining = accumulation (bullish). Rising from lows = new cycle. Extreme low = conviction floor.",s:"Crypto cycle analysis",e:5,g:"HODLer conviction measurement"}
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// APP
+// ═══════════════════════════════════════════════════════════════════
+let activeCat = null;
+let sortByEdge = false;
+
+function getCatColor(id) {
+  const map = {"Trend":"var(--cat-trend)","Momentum":"var(--cat-momentum)","Volume":"var(--cat-volume)","Volatility":"var(--cat-volatility)","Support/Resistance":"var(--cat-sr)","Trend Strength":"var(--cat-strength)","Breadth":"var(--cat-breadth)","Pattern":"var(--cat-pattern)","On-Chain":"var(--cat-onchain)"};
+  return map[id] || "#888";
+}
+
+function stars(n) {
+  return '<span class="star-filled">' + '★'.repeat(n) + '</span><span class="star-empty">' + '☆'.repeat(5-n) + '</span>';
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase().trim();
+  let items = I;
+  if (activeCat) items = items.filter(i => i.c === activeCat);
+  if (q) items = items.filter(i =>
+    i.n.toLowerCase().includes(q) || i.w.toLowerCase().includes(q) ||
+    i.g.toLowerCase().includes(q) || i.u.toLowerCase().includes(q)
+  );
+  if (sortByEdge) items = [...items].sort((a,b) => b.e - a.e);
+
+  // group
+  const groups = {};
+  items.forEach(i => { if (!groups[i.c]) groups[i.c] = []; groups[i.c].push(i); });
+
+  let html = '';
+  if (items.length === 0) {
+    html = '<div class="empty-state">No indicators match your search.</div>';
+  } else {
+    CATEGORIES.forEach(cat => {
+      if (!groups[cat.id]) return;
+      html += `<div class="cat-section">
+        <div class="cat-header">
+          <span class="cat-icon">${cat.icon}</span>
+          <span class="cat-title" style="color:${cat.color}">${cat.label}</span>
+          <span class="cat-count">${groups[cat.id].length}</span>
+        </div>`;
+      groups[cat.id].forEach((ind, idx) => {
+        const uid = (cat.id + idx).replace(/[^a-z0-9]/gi,'');
+        html += `<div class="card" id="card-${uid}">
+          <div class="card-head" onclick="toggleCard('card-${uid}')">
+            <div class="card-stripe" style="background:${cat.color}"></div>
+            <span class="card-name">${ind.n}</span>
+            <span class="card-stars">${stars(ind.e)}</span>
+            <span class="card-arrow">▾</span>
+          </div>
+          <div class="card-body">
+            <div class="field"><div class="field-label what">WHAT IT IS</div><p>${esc(ind.w)}</p></div>
+            <div class="calc-block">${esc(ind.f)}</div>
+            <div class="field"><div class="field-label why">WHY IT MATTERS</div><p>${esc(ind.y)}</p></div>
+            <div class="field"><div class="field-label how">HOW TO TRADE IT</div><p>${esc(ind.u)}</p></div>
+            <div class="tags">
+              <span class="tag">🎯 ${esc(ind.g)}</span>
+              <span class="tag">👤 ${esc(ind.s)}</span>
+            </div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+    });
+  }
+
+  document.getElementById('content').innerHTML = html;
+
+  // update counter
+  const counter = document.getElementById('counter');
+  if (counter) counter.textContent = items.length + ' / ' + I.length;
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function toggleCard(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+function buildPills() {
+  const el = document.getElementById('pills');
+  let html = `<button class="pill ${!activeCat?'active':''}" onclick="setCat(null)" style="--pill-color:var(--accent-blue)">All (${I.length})</button>`;
+  CATEGORIES.forEach(c => {
+    const cnt = I.filter(i => i.c === c.id).length;
+    html += `<button class="pill ${activeCat===c.id?'active':''}" onclick="setCat('${c.id}')" style="--pill-color:${c.color}">${c.icon} ${c.label} (${cnt})</button>`;
+  });
+  html += `<span class="counter" id="counter">${I.length} / ${I.length}</span>`;
+  html += `<button class="pill pill-sort ${sortByEdge?'active':''}" onclick="toggleSort()">${sortByEdge?'★ By edge':'Sort by edge'}</button>`;
+  el.innerHTML = html;
+}
+
+function setCat(c) { activeCat = (activeCat === c) ? null : c; buildPills(); render(); }
+function toggleSort() { sortByEdge = !sortByEdge; buildPills(); render(); }
+
+document.getElementById('search').addEventListener('input', render);
+window.addEventListener('scroll', () => {
+  document.getElementById('btt').classList.toggle('show', window.scrollY > 400);
+});
+
+buildPills();
+render();
+</script>
+</body>
+</html>
